@@ -1,3 +1,3 @@
 package ordershipping.domain
 
-class Category(var name: String, var taxPercentage: Double)
+case class Category(name: String, taxPercentage: Double)

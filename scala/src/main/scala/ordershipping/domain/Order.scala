@@ -1,14 +1,6 @@
 package ordershipping.domain
 
-import ordershipping.domain.OrderStatus.OrderStatus
-
-import scala.collection.mutable
-
-class Order(
-    var total: Double = 0,
-    var currency: String = "",
-    var items: mutable.MutableList[OrderItem] = mutable.MutableList.empty,
-    var tax: Double = 0,
-    var status: OrderStatus,
-    var id: Int
-)
+case class Order(id: Int, currency: String = "", status: OrderStatus, items: Seq[OrderItem] = Seq.empty) {
+  val total: Double = items.map(_.taxedAmount).sum
+  val tax: Double = items.map(_.tax).sum
+}

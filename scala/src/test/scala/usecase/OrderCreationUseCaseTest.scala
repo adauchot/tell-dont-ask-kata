@@ -1,13 +1,11 @@
 package usecase
 
 import doubles.{InMemoryProductCatalog, TestOrderRepository}
-import ordershipping.domain.{Category, OrderStatus, Product}
-import ordershipping.usecase.{
-  OrderCreationUseCase,
-  SellItemRequest,
-  SellItemsRequest,
-  UnknownProductException
-}
+import ordershipping.domain.OrderStatus.OrderStatusCreated
+import ordershipping.domain.{Category, Product}
+import ordershipping.exception.UnknownProductException
+import ordershipping.request.{SellItemRequest, SellItemsRequest}
+import ordershipping.usecase.OrderCreationUseCase
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -16,11 +14,11 @@ class OrderCreationUseCaseTest
     extends AnyFlatSpec
     with Matchers
     with BeforeAndAfterEach {
-  private val food = new Category(name = "food", taxPercentage = 10)
+  private val food = Category(name = "food", taxPercentage = 10)
   private val productCatalog = new InMemoryProductCatalog(
     List(
-      new Product(name = "salad", price = 3.56, category = food),
-      new Product(name = "tomato", price = 4.65, category = food)
+      Product(name = "salad", price = 3.56, category = food),
+      Product(name = "tomato", price = 4.65, category = food)
     )
   )
   private var orderRepository: TestOrderRepository = _
@@ -28,7 +26,7 @@ class OrderCreationUseCaseTest
 
   override def beforeEach(): Unit = {
     orderRepository = new TestOrderRepository()
-    useCase = new OrderCreationUseCase(
+    useCase = OrderCreationUseCase(
       orderRepository = orderRepository,
       productCatalog = productCatalog
     )
@@ -45,7 +43,7 @@ class OrderCreationUseCaseTest
     useCase.run(request)
 
     val insertedOrder = orderRepository.savedOrder()
-    insertedOrder.status shouldBe OrderStatus.Created
+    insertedOrder.status shouldBe OrderStatusCreated
     insertedOrder.total shouldBe 23.20
     insertedOrder.tax shouldBe 2.13
     insertedOrder.currency shouldBe "EUR"

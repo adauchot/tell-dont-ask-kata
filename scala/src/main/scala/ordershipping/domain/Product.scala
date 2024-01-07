@@ -1,3 +1,3 @@
 package ordershipping.domain
 
-class Product(var name: String, var price: Double, var category: Category)
+case class Product(name: String, price: Double, category: Category)

@@ -1,7 +1,9 @@
 package ordershipping.usecase
 
-import ordershipping.domain.OrderStatus
+import ordershipping.domain.OrderStatus._
+import ordershipping.exception.{OrderCannotBeShippedException, OrderCannotBeShippedTwiceException}
 import ordershipping.repository.OrderRepository
+import ordershipping.request.OrderShipmentRequest
 import ordershipping.service.ShipmentService
 
 class OrderShipmentUseCase(
@@ -12,17 +14,16 @@ class OrderShipmentUseCase(
     orderRepository
       .getById(request.orderId)
       .foreach(order => {
-        if (
-          order.status == OrderStatus.Created ||
-          order.status == OrderStatus.Rejected
-        ) throw new OrderCannotBeShippedException
-
-        if (order.status == OrderStatus.Shipped)
-          throw new OrderCannotBeShippedTwiceException
+        order.status match {
+          case OrderStatusCreated | OrderStatusRejected =>
+            throw new OrderCannotBeShippedException
+          case OrderStatusShipped =>
+            throw new OrderCannotBeShippedTwiceException
+          case _ =>
+        }
 
         shipmentService.ship(order)
-        order.status = OrderStatus.Shipped
-        orderRepository.save(order)
+        orderRepository.save(order.copy(status = OrderStatusShipped))
       })
   }
 }
