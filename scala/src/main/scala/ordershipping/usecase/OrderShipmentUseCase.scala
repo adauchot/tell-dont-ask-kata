@@ -14,6 +14,7 @@ class OrderShipmentUseCase(
     orderRepository
       .getById(request.orderId)
       .foreach(order => {
+        // Could use a validation method with a Try monad instead
         order.status match {
           case OrderStatusCreated | OrderStatusRejected =>
             throw new OrderCannotBeShippedException
